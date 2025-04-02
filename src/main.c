@@ -1,10 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#include "../ft_ping.h"
 
 void print_addrinfo_simple(struct addrinfo *info) {
     if (info == NULL) {
@@ -73,17 +67,15 @@ int main(int ac, char** av)
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
-    int i = 0;
-    while(i < 1000)
-    {
-        int status = getaddrinfo(av[1], NULL, &hints, &res);
-        if (status != 0) {
-            fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
-            exit(EXIT_FAILURE);
-        }
-        i++;
+
+    int status = getaddrinfo(av[1], NULL, &hints, &res);
+    if (status != 0) {
+        fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
+        exit(EXIT_FAILURE);
     }
-    // print_addrinfo_simple(res);
+    // print_addrinfo_simple(&hints);
+	print_addrinfo_simple(res);
+
     freeaddrinfo(res);
 
     return 0;

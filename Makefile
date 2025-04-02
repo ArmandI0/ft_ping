@@ -14,6 +14,7 @@ D_OBJS			= mkdir -p $(@D)
 
 CC 				= cc
 CFLAGS 			= -Wall -Wextra -Werror
+LDFLAGS			= -fsanitize=address
 NAME 			= ft_ping
 RM 				= rm -f
 RMR				= rm -rf
@@ -27,23 +28,14 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 				$(CC) $(CFLAGS) -c -o $@ $<
 
 $(NAME): 		$(OBJS)
-				@$(CC) $(CFLAGS) $(OBJS) $(LIBFT_A) -o $(NAME)
+				@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBFT_A) -o $(NAME)
 				
 clean:
 				@$(RMR) $(OBJ_DIR)
-				@$(RMR) $(OBJ_BONUS_DIR)
-				@$(RMR) $(LIBMLX)/build
-				@make -C $(LIBFT) clean
 
 fclean: 		clean
 				@$(RM) $(NAME)
-				@$(RM) $(NAME_BONUS)
-				@make -C $(LIBFT) fclean
 
 re:				fclean all
-
-bonus :			$(LIBFT_A) $(LIBMLX_A) $(OBJS_BONUS)
-				@$(RM) $(NAME)
-				@$(CC) $(CFLAGS) $(OBJS_BONUS) $(LIBFT_A)  $(LIBMLX_A) -ldl -lglfw -pthread -lm $(HEADERS) -o $(NAME)
 
 .PHONY : 		all clean fclean re bonus

@@ -14,7 +14,6 @@ D_OBJS			= mkdir -p $(@D)
 
 CC 				= cc
 CFLAGS 			= -Wall -Wextra -Werror
-LDFLAGS			= -fsanitize=address
 NAME 			= ft_ping
 RM 				= rm -f
 RMR				= rm -rf
@@ -28,7 +27,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 				$(CC) $(CFLAGS) -c -o $@ $<
 
 $(NAME): 		$(OBJS)
-				@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(LIBFT_A) -o $(NAME)
+				@$(CC) $(CFLAGS) $(OBJS) $(LIBFT_A) -o $(NAME)
 				
 clean:
 				@$(RMR) $(OBJ_DIR)

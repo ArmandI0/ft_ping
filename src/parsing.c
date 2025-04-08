@@ -14,6 +14,8 @@ void	addFlag(char *flag, cmd *command)
 			command->verbose = true;
 		else if (flag[i] == '?')
 			command->help = true;
+			printf("%s", USAGE);
+			free_command_and_exit(command);
 		else
 		{
 			fprintf(stderr, "ft_ping : invalid option %c \n", flag[i]);
@@ -26,7 +28,7 @@ void	addFlag(char *flag, cmd *command)
 	This function it use for DNS resolve and parse the address
 	
 	input	: the string that contain the url or ip and a pointer to the struct command
-	output	: 
+	output	: exit and free
 */
 void	addAddr(char *addr, cmd *command)
 {
@@ -46,6 +48,10 @@ void	addAddr(char *addr, cmd *command)
 	command->addr = res;
 }
 
+/*
+	This 
+
+*/
 bool	splitArgs(char **av, cmd* command)
 {
 	for (size_t i = 0; av[i] != NULL; i++)

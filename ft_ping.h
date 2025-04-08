@@ -8,7 +8,9 @@
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <arpa/inet.h>
+# include <netinet/in.h>
 
+# define USAGE "Usage: ft_ping [-v] [-?] <destination>"
 
 typedef struct command
 {
@@ -18,6 +20,7 @@ typedef struct command
 }				cmd;
 
 cmd* init_command_struct(void);
+
 
 
 #endif

@@ -14,12 +14,15 @@
 
 typedef struct command
 {
-	bool		verbose;	// -v
-	bool		help;	// -?
+	bool			verbose;	// -v
+	bool			help;	// -?
 	struct addrinfo	*addr; //list of address
 }				cmd;
 
-cmd* init_command_struct(void);
+cmd*	initCommandStruct(void);
+void 	freeComandAndExit(cmd *command);
+void	printStructCmd(cmd *command);
+cmd*	parseEntry(char **av);
 
 
 

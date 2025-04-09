@@ -13,13 +13,15 @@ void	addFlag(char *flag, cmd *command)
 		if (flag[i] == 'v')
 			command->verbose = true;
 		else if (flag[i] == '?')
+		{
 			command->help = true;
 			printf("%s", USAGE);
-			free_command_and_exit(command);
+			freeComandAndExit(command);
+		}
 		else
 		{
 			fprintf(stderr, "ft_ping : invalid option %c \n", flag[i]);
-			free_command_and_exit(command);
+			freeComandAndExit(command);
 		}
 	}
 }
@@ -43,7 +45,7 @@ void	addAddr(char *addr, cmd *command)
     int status = getaddrinfo(addr, NULL, &hints, &res);
     if (status != 0) {
         fprintf(stderr, "ft_ping: cannot resolve %s\n", addr);
-		free_command_and_exit(command);
+		freeComandAndExit(command);
     }
 	command->addr = res;
 }
@@ -54,35 +56,34 @@ void	addAddr(char *addr, cmd *command)
 */
 bool	splitArgs(char **av, cmd* command)
 {
-	for (size_t i = 0; av[i] != NULL; i++)
+	for (size_t i = 1; av[i] != NULL; i++)
 	{
+		printf("arg[%ld] , %s \n", i, av[i]);
 		if (av[i][0] == '-')
 			addFlag(av[i], command);
 		else if (command->addr == NULL)
 			addAddr(av[i], command);
 		else
 		{
-			ftprintf(stderr, "Second addr argument "); // voir comment gerer ce cas (possible de mettre de site a ping ??)
-			EXIT_FAILURE;
+			fprintf(stderr, "Second addr argument "); // voir comment gerer ce cas (possible de mettre de site a ping ??)
+			return EXIT_FAILURE;
 		}
 	}
-	EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
-
 
 cmd* parseEntry(char **av)
 {
-	cmd *command = init_command_struct();
-
+	cmd *command = initCommandStruct();
 	if (command == NULL)
 	{
 		fprintf(stderr, "Error : malloc failed\n");
-		return EXIT_FAILURE;
+		return NULL;
 	}
 
 	int status = splitArgs(av, command);
-	if (status == EXIT_FAILURE);
-		free_command_and_exit(command);
+	if (status == EXIT_FAILURE)
+		freeComandAndExit(command);
 	return command;
 }
 

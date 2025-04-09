@@ -1,6 +1,6 @@
 #include "../ft_ping.h"
 
-cmd* init_command_struct(void)
+cmd* initCommandStruct(void)
 {
 	cmd *command;
 	command = malloc(sizeof(cmd));
@@ -12,7 +12,7 @@ cmd* init_command_struct(void)
 	return command;
 }
 
-void free_command_and_exit(cmd *command)
+void freeComandAndExit(cmd *command)
 {
 	if (command->addr != NULL)
 		freeaddrinfo(command->addr);

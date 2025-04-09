@@ -4,7 +4,11 @@ SRC_DIR			= src
 OBJ_DIR			= obj
 
 SRCS			= \
-					main.c \
+				main.c \
+				parsing.c \
+				socket.c \
+				struct-management.c \
+				utils.c \
 				
 SRC				= $(addprefix src/, $(SRCS))
 OBJS			= $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)

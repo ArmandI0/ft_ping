@@ -18,6 +18,16 @@ invalid flag -> ping: invalid argument: 'fsdf'
 ```
     https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol
 ```
+
+### Type = 8bits
+```
+    Type de message ICMP
+```
+### Code (8bits)
+    Code associe au type voir tableau protocol ICMP
+    Pour ping c'est 0.
+
+
     struct iphdr 
     struct icmphdr *icmp = (struct icmphdr *)packet;
     icmp->type = ICMP_ECHO;

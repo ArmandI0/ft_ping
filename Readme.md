@@ -35,3 +35,24 @@ invalid flag -> ping: invalid argument: 'fsdf'
     icmp->un.echo.id = htons(1234);     // Identifiant arbitraire
     icmp->un.echo.sequence = htons(1);  // Numéro de séquence
     icmp->checksum = 0;
+
+### Checksum
+
+Paquet brut de 64 bits :
+```
+    [ 10101010 11001100 11110000 00001111 01010101 10101010 11001100 11110000 ]
+```
+
+Separation en bloc de 16 bits :
+```
+    Bloc 1 : 10101010 11001100 (0xAACC)
+    Bloc 2 : 11110000 00001111 (0xF00F)
+    Bloc 3 : 01010101 10101010 (0x55AA)
+    Bloc 4 : 11001100 11110000 (0xCCF0)
+```
+
+Addition (dans un bloc de 32bits pour ne pas overflow) :
+```
+    0xAACC + 0xF00F = 0x9ADC5 (17 bits)
+    0x9ADC5 en uint_32 -> 0000 0000 0000 1001 1010 1101 1100 0101
+```

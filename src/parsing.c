@@ -16,12 +16,12 @@ void	addFlag(char *flag, cmd *command)
 		{
 			command->help = true;
 			printf("%s", USAGE);
-			freeComandAndExit(command);
+			freeAndExit(command, EXIT_FAILURE);
 		}
 		else
 		{
 			fprintf(stderr, "ft_ping : invalid option %c \n", flag[i]);
-			freeComandAndExit(command);
+			freeAndExit(command, EXIT_FAILURE);
 		}
 	}
 }
@@ -45,7 +45,7 @@ void	addAddr(char *addr, cmd *command)
     int status = getaddrinfo(addr, NULL, &hints, &res);
     if (status != 0) {
         fprintf(stderr, "ft_ping: cannot resolve %s\n", addr);
-		freeComandAndExit(command);
+		freeAndExit(command, EXIT_FAILURE);
     }
 	command->addr = res;
 }
@@ -83,7 +83,7 @@ cmd* parseEntry(char **av)
 
 	int status = splitArgs(av, command);
 	if (status == EXIT_FAILURE)
-		freeComandAndExit(command);
+		freeAndExit(command, EXIT_FAILURE);
 	return command;
 }
 

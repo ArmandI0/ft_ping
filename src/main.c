@@ -1,6 +1,6 @@
 #include "../ft_ping.h"
 
-int main(int ac, char** av)
+int main(int ac, char **av)
 {
     if (ac < 2)
     {
@@ -9,6 +9,6 @@ int main(int ac, char** av)
     }
 
     cmd* command = parseEntry(av);
-    printStructCmd(command);
+    createAndSendPacket(command);
     return 0;
 }

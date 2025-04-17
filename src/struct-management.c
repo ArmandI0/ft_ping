@@ -9,14 +9,19 @@ cmd* initCommandStruct(void)
 	command->verbose = false;
 	command->help = false;
 	command->addr = NULL;
+	command->packet = NULL;
+	command->socket = -1;
 	return command;
 }
 
-void freeComandAndExit(cmd *command)
+void freeAndExit(cmd *command, int exit_code)
 {
-	if (command->addr != NULL)
-		freeaddrinfo(command->addr);
-	free(command);
-	command = NULL;
-	exit(EXIT_SUCCESS);
+    if (command != NULL) {
+        if (command->addr != NULL)
+            freeaddrinfo(command->addr);
+        if (command->packet != NULL)
+            free(command->packet);
+        free(command);
+    }
+    exit(exit_code);
 }

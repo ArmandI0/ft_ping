@@ -54,13 +54,15 @@ void    createSocket(cmd *command)
 void    sendPacket(cmd *command)
 {
     int status = 0;
-
     status = sendto(command->socket, command->packet, 64, 0, command->addr->ai_addr, command->addr->ai_addrlen);
     if (status == -1)
     {
         perror("sendto");
         freeAndExit(command, EXIT_FAILURE);
     }
+    gettimeofday(command->start, NULL);
+    printf("FT_PING %s (%s) 56(%d) bytes of data.\n", command->raw_adress, convertIpToString(command->addr), status + 20);
+    printf("start time = %d", command->start);
 }
 
 void recvPacket(cmd *command)
@@ -75,7 +77,16 @@ void recvPacket(cmd *command)
         perror("recvfrom");
         freeAndExit(command, EXIT_FAILURE);
     }
-    printf("Packet recu : %s", buffer_rcv);
+    struct iphdr *ip_header = (struct iphdr *)buffer_rcv;
+    printf("ip_header->ttl = %d\n", ip_header->ttl);
+    printf("ip_header->ttl = %d\n", ip_header->saddr);
+
+
+    for (int i = 0; i < 64; i++)
+    {
+        write(1, &buffer_rcv[i], 1);
+    }
+    printf("\n");
     printf("taille = %d", status);
 }
 

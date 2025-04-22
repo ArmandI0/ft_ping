@@ -67,3 +67,19 @@ void    printStructCmd(cmd *command)
     printf("help = %s\n", printBool(command->help));
     printf("%p\n", command->addr);
 }
+
+
+char *convertIpToString(struct addrinfo *addr) {
+    void *ip;
+    char ipstr[INET6_ADDRSTRLEN];
+
+    if (addr->ai_family == AF_INET) {
+        struct sockaddr_in *ipv4 = (struct sockaddr_in *)addr->ai_addr;
+        ip = &(ipv4->sin_addr);
+    } else {
+        struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)addr->ai_addr;
+        ip = &(ipv6->sin6_addr);
+    }
+    inet_ntop(addr->ai_family, ip, ipstr, sizeof(ipstr));
+    return strdup(ipstr);
+}

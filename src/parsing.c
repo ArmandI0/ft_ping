@@ -48,6 +48,7 @@ void	addAddr(char *addr, cmd *command)
 		freeAndExit(command, EXIT_FAILURE);
     }
 	command->addr = res;
+	command->raw_adress = addr;
 }
 
 /*

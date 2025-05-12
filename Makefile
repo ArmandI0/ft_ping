@@ -17,7 +17,7 @@ D_OBJS			= mkdir -p $(@D)
 #-UTILS-#
 
 CC 				= cc
-CFLAGS 			= -Wall -Wextra -Werror
+CFLAGS 			= -Wall -Wextra -Werror -g
 NAME 			= ft_ping
 RM 				= rm -f
 RMR				= rm -rf

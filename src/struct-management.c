@@ -11,6 +11,8 @@ cmd* initCommandStruct(void)
 	command->addr = NULL;
 	command->packet = NULL;
 	command->socket = -1;
+    memset(&command->start, 0, sizeof(struct timeval));
+    memset(&command->end, 0, sizeof(struct timeval));
 	return command;
 }
 

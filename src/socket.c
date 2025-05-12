@@ -60,34 +60,65 @@ void    sendPacket(cmd *command)
         perror("sendto");
         freeAndExit(command, EXIT_FAILURE);
     }
-    gettimeofday(command->start, NULL);
+    gettimeofday(&command->start, NULL);
     printf("FT_PING %s (%s) 56(%d) bytes of data.\n", command->raw_adress, convertIpToString(command->addr), status + 20);
-    printf("start time = %d", command->start);
+    printf("start time = %ld.%06ld\n", command->start.tv_sec, command->start.tv_usec);
 }
+
+int getnameinfo_recv(int argument, struct sockaddr_storage recv_address, socklen_t addr_len, char *host)
+{
+    char    service[NI_MAXSERV];
+
+    int status = getnameinfo((struct sockaddr *)&recv_address, addr_len,
+                          host, NI_MAXHOST,
+                          service, NI_MAXSERV,
+                          argument | NI_NUMERICSERV);
+    return status;
+}
+
 
 void recvPacket(cmd *command)
 {
-    int         status = 0;
-    char        buffer_rcv[64];
-    socklen_t   addr_len = command->addr->ai_addrlen;
+    int                     status = 0;
+    char                    buffer_rcv[64];
+    struct sockaddr_storage recv_address;
+    socklen_t               addr_len = sizeof(recv_address);
 
-    status = recvfrom(command->socket, buffer_rcv, sizeof(buffer_rcv), 0, command->addr->ai_addr, &addr_len);
+    memset(&recv_address, 0, sizeof(recv_address));
+
+    status = recvfrom(command->socket, buffer_rcv, sizeof(buffer_rcv), 0,
+                      (struct sockaddr *)&recv_address, &addr_len);
     if (status == -1)
     {
         perror("recvfrom");
         freeAndExit(command, EXIT_FAILURE);
     }
+
     struct iphdr *ip_header = (struct iphdr *)buffer_rcv;
-    printf("ip_header->ttl = %d\n", ip_header->ttl);
-    printf("ip_header->ttl = %d\n", ip_header->saddr);
+    printf("TTL = %d\n", ip_header->ttl);
+    printf("Source IP (raw saddr) = %u\n", ip_header->saddr);
 
-
-    for (int i = 0; i < 64; i++)
+    char host_ip[NI_MAXHOST];
+    char host_name[NI_MAXHOST];
+    
+    if (getnameinfo_recv(NI_NUMERICHOST, recv_address, addr_len, host_ip) !=  0)
     {
-        write(1, &buffer_rcv[i], 1);
+        fprintf(stderr, "Erreur lors de la récupération de l'adresse IP.\n");
+        return;
     }
+    
+    if (getnameinfo_recv(NI_NAMEREQD, recv_address, addr_len, host_name) != 0)
+    {
+        fprintf(stderr, "Erreur lors de la récupération du nom d'hôte.\n");
+        return;
+    }
+    
+    // Affichage du résultat
+    printf("blabla : %s (%s)\n", host_name, host_ip);
+    for (int i = 0; i < 64; i++)
+        write(1, &buffer_rcv[i], 1);
+    
     printf("\n");
-    printf("taille = %d", status);
 }
 
 void    createAndSendPacket(cmd *command)

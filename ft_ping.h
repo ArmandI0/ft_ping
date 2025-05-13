@@ -13,20 +13,22 @@
 # include <netinet/in.h>
 # include <netinet/ip_icmp.h>
 # include <sys/time.h>
+# include <ctype.h>
+
 # define USAGE "Usage: ft_ping [-v] [-?] <destination>"
 
 typedef struct command
 {
 	bool			verbose;	// -v
 	bool			help;	// -?
+	bool			print_hostname;
 	char			*packet;
 	int				socket;
 	int				nb_of_transmitted_packets;
 	int				nb_of_received_packets;
 	struct addrinfo	*addr; //list of address
 	char			*raw_adress;
-	struct timeval	start;
-	struct timeval	end;
+	double			start_time;
 }				cmd;
 
 cmd*			initCommandStruct(void);
@@ -35,5 +37,7 @@ void			printStructCmd(cmd *command);
 cmd*			parseEntry(char **av);
 void    		createAndSendPacket(cmd *command);
 char*			convertIpToString(struct addrinfo *addr);
+double 			getTimeInMs(void);
+void 			printData(const char *data, size_t len);
 
 #endif

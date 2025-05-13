@@ -26,6 +26,17 @@ void	addFlag(char *flag, cmd *command)
 	}
 }
 
+bool is_ip_adress(const char *str)
+{
+    struct sockaddr_in	sa;
+    int 				result = inet_pton(AF_INET, str, &(sa.sin_addr));
+    if(result == 1)
+	{
+        return true;
+    }
+    return false;
+}
+
 /*
 	This function it use for DNS resolve and parse the address
 	
@@ -42,6 +53,7 @@ void	addAddr(char *addr, cmd *command)
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
+	command->print_hostname = is_ip_adress(addr);
     int status = getaddrinfo(addr, NULL, &hints, &res);
     if (status != 0) {
         fprintf(stderr, "ft_ping: cannot resolve %s\n", addr);

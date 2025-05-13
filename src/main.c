@@ -9,6 +9,10 @@ int main(int ac, char **av)
     }
 
     cmd* command = parseEntry(av);
-    createAndSendPacket(command);
+    while(true)
+    {
+        createAndSendPacket(command);
+        sleep(1);
+    }
     return 0;
 }

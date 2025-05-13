@@ -69,7 +69,8 @@ void    printStructCmd(cmd *command)
 }
 
 
-char *convertIpToString(struct addrinfo *addr) {
+char *convertIpToString(struct addrinfo *addr)
+{
     void *ip;
     char ipstr[INET6_ADDRSTRLEN];
 
@@ -82,4 +83,17 @@ char *convertIpToString(struct addrinfo *addr) {
     }
     inet_ntop(addr->ai_family, ip, ipstr, sizeof(ipstr));
     return strdup(ipstr);
+}
+
+double getTimeInMs(void)
+{
+    struct timeval end;
+    int status = gettimeofday(&end, NULL);
+
+    if (status != 0)
+        return -1;
+
+    // Convertir en millisecondes
+    double milliseconds = end.tv_sec * 1000.0 + end.tv_usec / 1000.0;
+    return milliseconds;
 }

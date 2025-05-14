@@ -11,7 +11,7 @@ int main(int ac, char **av)
     }
     cmd* command = parseEntry(av);
     setSignalAction();
-    // printf("FT_PING %s (%s): 56 data bytes\n", command->raw_adress)
+
     while(g_signal_received)
     {
         createAndSendPacket(command);

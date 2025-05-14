@@ -66,6 +66,21 @@ double calcStddev(cmd *command)
         return 0;
 }
 
+void printHeader(cmd *command, u_int16_t pid)
+{
+    char    *ip_str = convertIpToString(command->addr);
+    if (ip_str == NULL)
+    {
+        perror("convertIpToString");
+        freeAndExit(command, EXIT_FAILURE);
+    }
+    if (command->verbose == true)
+        printf("FT_PING %s (%s): 56 data bytes, id 0x%04x = %u\n", command->raw_adress , ip_str, pid, pid);
+    else
+        printf("FT_PING %s (%s): 56 data bytes\n", command->raw_adress , ip_str);
+    free(ip_str);
+}
+
 void printStatistics(cmd *command)
 {
     int packet_loss = ((command->nb_of_transmitted_packets -command->nb_of_received_packets) / command->nb_of_transmitted_packets) * 100;

@@ -71,7 +71,6 @@ bool	splitArgs(char **av, cmd* command)
 {
 	for (size_t i = 1; av[i] != NULL; i++)
 	{
-		printf("arg[%ld] , %s \n", i, av[i]);
 		if (av[i][0] == '-')
 			addFlag(av[i], command);
 		else if (command->addr == NULL)

@@ -21,7 +21,7 @@ uint16_t checksum(void *buffer, size_t length) {
 }
 
 
-char* preparePacket(void)
+char* preparePacket(cmd *command)
 {
     static int  seq = 0;
     int         packet_len = 64;
@@ -33,11 +33,15 @@ char* preparePacket(void)
     struct icmphdr *icmp = (struct icmphdr *)packet;        // Prépare l'en-tête au format ICMP
     icmp->type = ICMP_ECHO;                                 // Type de commande ICMP
     icmp->code = 0;                                         // Code associe a la commande ICMP voir : https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol
-    icmp->un.echo.id = htons(getpid());                     // Identifiant pour permettre d'identifier la reponse : Generalement le pid()
+    uint16_t pid = getpid() & 0xFFFF;
+    icmp->un.echo.id = htons(pid);                     // Identifiant pour permettre d'identifier la reponse : Generalement le pid()
     icmp->un.echo.sequence = htons(seq);                    // C'est le numero du ping dans la sequence de ping commence generalement a 1
     icmp->checksum = 0;
     icmp->checksum = checksum(packet, packet_len);          // Resultat d'un calcul de somme des informations du packet pour verifier l'integrite
+    if (seq == 0)
+        printHeader(command, pid);
     seq++;
+
     return packet;
 }
 
@@ -196,7 +200,7 @@ void recvPacket(cmd *command)
 
 void    createAndSendPacket(cmd *command)
 {
-    command->packet = preparePacket();
+    command->packet = preparePacket(command);
     if (command->packet == NULL)
     {
         perror("malloc");

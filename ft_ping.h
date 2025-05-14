@@ -24,7 +24,7 @@
 
 extern	volatile sig_atomic_t g_signal_received;
 
-# define USAGE "Usage: ft_ping [-v] [-?] <destination>"
+# define USAGE "Usage: ft_ping [-v] [-?] <destination>\n"
 
 typedef	struct packet_received
 {
@@ -62,5 +62,7 @@ void 			setSignalAction(void);
 packet* 		createPacket(char *data, double time_to_transmit_packet);
 void 			appendPacket(packet **head, packet *new_packet);
 void			printStatistics(cmd *command);
+void 			printHeader(cmd *command, u_int16_t pid);
+
 
 #endif

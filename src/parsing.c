@@ -6,24 +6,44 @@
 	input	: the string that contain the flag and a pointeur to the struct cmd
 	output	: in case of a parsing error, exit programme and free cmd struct
 */
-void	addFlag(char *flag, cmd *command)
+void addFlag(char *flag, cmd *command)
 {
-	for (size_t i = 1; flag[i] != '\0'; i++)
-	{
-		if (flag[i] == 'v')
-			command->verbose = true;
-		else if (flag[i] == '?')
-		{
-			command->help = true;
-			printf("%s", USAGE);
-			freeAndExit(command, EXIT_FAILURE);
-		}
-		else
-		{
-			fprintf(stderr, "ft_ping : invalid option %c \n", flag[i]);
-			freeAndExit(command, EXIT_FAILURE);
-		}
-	}
+	// -- options
+    if (strncmp(flag, "--ttl=", 6) == 0)
+    {
+        char *endptr;
+        long ttl = strtol(flag + 6, &endptr, 10);
+        if (*endptr == '\0' && ttl > 0 && ttl < 256)
+        {
+            command->ttl = ttl;
+        }
+        else
+        {
+            fprintf(stderr, "ft_ping: invalid TTL value '%s'\n", flag + 6);
+            freeAndExit(command, EXIT_FAILURE);
+        }
+        return;
+    }
+
+	// - options
+    for (size_t i = 1; flag[i] != '\0'; i++)
+    {
+        if (flag[i] == 'v')
+        {
+            command->verbose = true;
+        }
+        else if (flag[i] == '?')
+        {
+            command->help = true;
+            printf("%s", USAGE);
+            freeAndExit(command, EXIT_FAILURE);
+        }
+        else
+        {
+            fprintf(stderr, "ft_ping: invalid option -- '%c'\n", flag[i]);
+            freeAndExit(command, EXIT_FAILURE);
+        }
+    }
 }
 
 bool is_ip_adress(const char *str)
@@ -77,7 +97,7 @@ bool	splitArgs(char **av, cmd* command)
 			addAddr(av[i], command);
 		else
 		{
-			fprintf(stderr, "Second addr argument "); // voir comment gerer ce cas (possible de mettre de site a ping ??)
+			fprintf(stderr, "Only one destination are required"); // voir comment gerer ce cas (possible de mettre de site a ping ??)
 			return EXIT_FAILURE;
 		}
 	}
@@ -89,11 +109,12 @@ cmd* parseEntry(char **av)
 	cmd *command = initCommandStruct();
 	if (command == NULL)
 	{
-		fprintf(stderr, "Error : malloc failed\n");
+		perror("malloc fail");
 		return NULL;
 	}
 
 	int status = splitArgs(av, command);
+
 	if (status == EXIT_FAILURE)
 		freeAndExit(command, EXIT_FAILURE);
 	return command;

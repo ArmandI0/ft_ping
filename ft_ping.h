@@ -39,6 +39,7 @@ typedef struct command
 {
 	bool			verbose;	// -v
 	bool			help;	// -?
+	int				ttl;
 	bool			print_hostname;
 	char			*packet;
 	int				socket;

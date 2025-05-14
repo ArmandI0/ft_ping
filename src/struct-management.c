@@ -57,6 +57,7 @@ cmd* initCommandStruct(void)
     command->nb_of_transmitted_packets = 0;
     command->nb_of_received_packets = 0;
     command->nb_of_received_packets = 0;
+    command->ttl = 64;
 	return command;
 }
 

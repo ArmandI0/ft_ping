@@ -55,10 +55,20 @@ void    createSocket(cmd *command)
         perror("socket");
         freeAndExit(command, EXIT_FAILURE);
     }
+
+    // Pour que les fonctions comme recvfrom soit non bloquante
     int flags = fcntl(sockfd, F_GETFL, 0);
+
     if (flags == -1 || fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
         perror("fcntl - non-blocking");
         freeAndExit(command, EXIT_FAILURE);
+    }
+
+    // Modifier le time to leave
+    int ttl = command->ttl;
+
+    if (setsockopt(sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
+        perror("setsockopt");
     }
     command->socket = sockfd;
 }
@@ -91,13 +101,13 @@ int getnameinfo_recv(int argument, struct sockaddr_storage recv_address, socklen
     return status;
 }
 
-void parseRawPacket(char *buffer, cmd *command)
+void parseRawPacket(char *buffer, cmd *command, int size_recv)
 {
     // Extract IP_HEADER
     struct iphdr    *ip_header = (struct iphdr *)buffer;
     int             ip_header_lenght = ip_header->ihl * 4;
     int             ip_header_ttl = ip_header->ttl;
-
+    int             bytes_recv = size_recv - ip_header_lenght;
     // Recuperer Source Address dans IP_HEADER
     char            ip_str[INET_ADDRSTRLEN];
     struct in_addr  src_ip;
@@ -119,10 +129,14 @@ void parseRawPacket(char *buffer, cmd *command)
     }
     double    time = end_time - command->start_time;
 
+
     // Sauvegarder le packet
     packet  *new_packet = createPacket(buffer, time);
     appendPacket(&command->packets, new_packet);
-
+    if (icmp_header->type == ICMP_TIME_EXCEEDED && command->verbose == true)
+    {
+        printf("COUCOU");
+    }
     if (command->print_hostname == false)
     {
         // Recherche DNS Inverse
@@ -144,11 +158,11 @@ void parseRawPacket(char *buffer, cmd *command)
             perror("getnameinfo");
             freeAndExit(command, EXIT_FAILURE);
         }
-        printf("64 bytes from %s (%s): icmp_seq=%d ttl=%d time=%.1f ms\n", hostname, ip_str, sequence_number, ip_header_ttl, time);
+        printf("%d bytes from %s (%s): icmp_seq=%d ttl=%d time=%.1f ms\n", bytes_recv, hostname, ip_str, sequence_number, ip_header_ttl, time);
     }
     else
     {
-        printf("64 bytes from %s : icmp_seq=%d ttl=%d time=%.1f ms\n", ip_str, sequence_number, ip_header_ttl, time);
+        printf("%d bytes from %s : icmp_seq=%d ttl=%d time=%.1f ms\n", bytes_recv, ip_str, sequence_number, ip_header_ttl, time);
     }
 
 }
@@ -193,7 +207,7 @@ void recvPacket(cmd *command)
     }
     if (timeout == false)
     {
-        parseRawPacket(buffer_rcv, command);
+        parseRawPacket(buffer_rcv, command, status);
         command->nb_of_received_packets++;
     }
 }

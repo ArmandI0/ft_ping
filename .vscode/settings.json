@@ -3,7 +3,8 @@
         "socket.h": "c",
         "stdio.h": "c",
         "stdint.h": "c",
-        "features.h": "c"
+        "features.h": "c",
+        "cmath": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

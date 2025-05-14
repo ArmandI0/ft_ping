@@ -43,8 +43,6 @@ char* preparePacket(void)
 
 void    createSocket(cmd *command)
 {
-    int opt_set_ttl = 64;
-    int opt_recv_ttl = 1;
     int sockfd = -1;
     
     sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);   // SOCK_RAW -> Socket brute pour tous les protocoles + filtre ICMP
@@ -53,14 +51,9 @@ void    createSocket(cmd *command)
         perror("socket");
         freeAndExit(command, EXIT_FAILURE);
     }
-    if (setsockopt(sockfd, IPPROTO_IP, IP_TTL, &opt_set_ttl, sizeof(opt_set_ttl)) < 0)
-    {
-        perror("setsockopt - IP_TTL");
-        freeAndExit(command, EXIT_FAILURE);
-    }
-    if (setsockopt(sockfd, IPPROTO_IP, IP_RECVTTL, &opt_recv_ttl, sizeof(opt_recv_ttl)) < 0)
-    {
-        perror("setsockopt - IP_RECVTTL");
+    int flags = fcntl(sockfd, F_GETFL, 0);
+    if (flags == -1 || fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
+        perror("fcntl - non-blocking");
         freeAndExit(command, EXIT_FAILURE);
     }
     command->socket = sockfd;
@@ -75,9 +68,12 @@ void    sendPacket(cmd *command)
         perror("sendto");
         freeAndExit(command, EXIT_FAILURE);
     }
+    free(command->packet);
+    command->packet = NULL;
     long start_time = getTimeInMs();
     if (start_time != -1)
         command->start_time = start_time;
+    command->nb_of_transmitted_packets++;
 }
 
 int getnameinfo_recv(int argument, struct sockaddr_storage recv_address, socklen_t addr_len, char *host)
@@ -97,6 +93,7 @@ void parseRawPacket(char *buffer, cmd *command)
     struct iphdr    *ip_header = (struct iphdr *)buffer;
     int             ip_header_lenght = ip_header->ihl * 4;
     int             ip_header_ttl = ip_header->ttl;
+
     // Recuperer Source Address dans IP_HEADER
     char            ip_str[INET_ADDRSTRLEN];
     struct in_addr  src_ip;
@@ -112,8 +109,15 @@ void parseRawPacket(char *buffer, cmd *command)
     // Calculer temps de ping
     double    end_time = getTimeInMs();
     if (end_time == -1)
-        return; // Rajouter perror
+    {
+        perror("gettime");
+        freeAndExit(command, EXIT_FAILURE);
+    }
     double    time = end_time - command->start_time;
+
+    // Sauvegarder le packet
+    packet  *new_packet = createPacket(buffer, time);
+    appendPacket(&command->packets, new_packet);
 
     if (command->print_hostname == false)
     {
@@ -131,7 +135,11 @@ void parseRawPacket(char *buffer, cmd *command)
             hostname, sizeof(hostname),
             NULL, 0, NI_NAMEREQD
         );
-        ret++; 
+        if (ret != 0)
+        {
+            perror("getnameinfo");
+            freeAndExit(command, EXIT_FAILURE);
+        }
         printf("64 bytes from %s (%s): icmp_seq=%d ttl=%d time=%.1f ms\n", hostname, ip_str, sequence_number, ip_header_ttl, time);
     }
     else
@@ -144,54 +152,47 @@ void parseRawPacket(char *buffer, cmd *command)
 void recvPacket(cmd *command)
 {
     int                     status = 0;
+    bool                    timeout = true;
     char                    buffer_rcv[512];    //Contient le paquet brut [IP header][ICMP header][ICMP data...]
     struct sockaddr_storage recv_address;
     socklen_t               addr_len = sizeof(recv_address);
 
     memset(&recv_address, 0, sizeof(recv_address));
-
-    status = recvfrom(
-        command->socket,
-        buffer_rcv,
-        sizeof(buffer_rcv),
-        0,
-        (struct sockaddr *)&recv_address,
-        &addr_len
-    );
-
-    if (status == -1)
+    while ((getTimeInMs() - command->start_time) < TIMEOUT && g_signal_received) // et supp a 0
     {
-        perror("recvfrom");
-        freeAndExit(command, EXIT_FAILURE);
+        status = recvfrom(
+            command->socket,
+            buffer_rcv,
+            sizeof(buffer_rcv),
+            0,
+            (struct sockaddr *)&recv_address,
+            &addr_len
+        );
+        if (status != 0)
+        {
+            if (status == -1)
+            {
+                if (errno == EWOULDBLOCK || errno == EAGAIN)
+                {
+                    usleep(10000);
+                    continue;
+                }
+                else
+                {
+                    perror("recvfrom");
+                    freeAndExit(command, EXIT_FAILURE);
+                }
+            }
+            timeout = false;
+            break;
+        }
     }
-
-    parseRawPacket(buffer_rcv, command);
-
-    // char host_ip[NI_MAXHOST];
-    // char host_name[NI_MAXHOST];
-    
-    // if (getnameinfo_recv(NI_NUMERICHOST, recv_address, addr_len, host_ip) !=  0)
-    // {
-    //     fprintf(stderr, "Erreur lors de la récupération de l'adresse IP.\n");
-    //     return;
-    // }
-    
-    // if (getnameinfo_recv(NI_NAMEREQD, recv_address, addr_len, host_name) != 0)
-    // {
-    //     fprintf(stderr, "Erreur lors de la récupération du nom d'hôte.\n");
-    //     return;
-    // }
-    
-    // // Affichage du résultat
-    // struct icmphdr *icmp = (struct icmphdr *)command->packet;
-    // double    end_time = getTimeInMs();
-    // if (end_time == -1)
-    //     return;
-    // double    time = end_time - command->start_time;
-    // printf("64 bytes from %s (%s): icmp_seq=%d ttl=0 time=%.1f ms\n", host_name, host_ip, ntohs(icmp->un.echo.sequence), time);
+    if (timeout == false)
+    {
+        parseRawPacket(buffer_rcv, command);
+        command->nb_of_received_packets++;
+    }
 }
-
-
 
 void    createAndSendPacket(cmd *command)
 {

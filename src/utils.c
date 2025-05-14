@@ -91,8 +91,10 @@ double getTimeInMs(void)
     int status = gettimeofday(&end, NULL);
 
     if (status != 0)
+    {
+        perror("gettimeofday");
         return -1;
-
+    }
     // Convertir en millisecondes
     double milliseconds = end.tv_sec * 1000.0 + end.tv_usec / 1000.0;
     return milliseconds;

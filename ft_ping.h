@@ -14,8 +14,26 @@
 # include <netinet/ip_icmp.h>
 # include <sys/time.h>
 # include <ctype.h>
+# include <signal.h>
+# include <fcntl.h>
+# include <errno.h>
+# include <math.h>
+# include <float.h>
+
+# define TIMEOUT 1000 //en ms
+
+extern	volatile sig_atomic_t g_signal_received;
 
 # define USAGE "Usage: ft_ping [-v] [-?] <destination>"
+
+typedef	struct packet_received
+{
+	char					*data;
+	double					time_to_tramsmit_packet;
+    struct packet_received	*next;
+    struct packet_received	*prev;
+
+}		packet;
 
 typedef struct command
 {
@@ -26,10 +44,12 @@ typedef struct command
 	int				socket;
 	int				nb_of_transmitted_packets;
 	int				nb_of_received_packets;
-	struct addrinfo	*addr; //list of address
+	struct addrinfo	*addr;
 	char			*raw_adress;
 	double			start_time;
-}				cmd;
+	packet			*packets;
+}				cmd;	
+
 
 cmd*			initCommandStruct(void);
 void 			freeAndExit(cmd *command, int exit_code);
@@ -38,6 +58,9 @@ cmd*			parseEntry(char **av);
 void    		createAndSendPacket(cmd *command);
 char*			convertIpToString(struct addrinfo *addr);
 double 			getTimeInMs(void);
-void 			printData(const char *data, size_t len);
+void 			setSignalAction(void);
+packet* 		createPacket(char *data, double time_to_transmit_packet);
+void 			appendPacket(packet **head, packet *new_packet);
+void			printStatistics(cmd *command);
 
 #endif

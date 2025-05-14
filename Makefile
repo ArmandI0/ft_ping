@@ -9,6 +9,8 @@ SRCS			= \
 				socket.c \
 				struct-management.c \
 				utils.c \
+				signal.c \
+				packet-statistics.c \
 				
 SRC				= $(addprefix src/, $(SRCS))
 OBJS			= $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
@@ -17,7 +19,7 @@ D_OBJS			= mkdir -p $(@D)
 #-UTILS-#
 
 CC 				= cc
-CFLAGS 			= -Wall -Wextra -Werror -g
+CFLAGS 			= -Wall -Wextra -Werror -g 
 NAME 			= ft_ping
 RM 				= rm -f
 RMR				= rm -rf
@@ -31,7 +33,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 				$(CC) $(CFLAGS) -c -o $@ $<
 
 $(NAME): 		$(OBJS)
-				@$(CC) $(CFLAGS) $(OBJS) $(LIBFT_A) -o $(NAME)
+				@$(CC) $(CFLAGS) $(OBJS) $(LIBFT_A) -o $(NAME) -lm
 				
 clean:
 				@$(RMR) $(OBJ_DIR)

@@ -40,7 +40,6 @@ typedef struct command
 	bool			verbose;	// -v
 	bool			help;	// -?
 	int				ttl;
-	bool			print_hostname;
 	char			*packet;
 	int				socket;
 	int				nb_of_transmitted_packets;
@@ -51,6 +50,18 @@ typedef struct command
 	packet			*packets;
 }				cmd;	
 
+struct print_infos
+{
+	int             bytes_recv;
+	char            hostname[NI_MAXHOST];
+	char            ip_str[INET_ADDRSTRLEN];
+	int             sequence_number;
+	int				icmp_type;
+	int             ttl;
+	double          time;
+	struct iphdr    *ip_header;
+	struct icmphdr  *icmp_header;
+};
 
 cmd*			initCommandStruct(void);
 void 			freeAndExit(cmd *command, int exit_code);
@@ -64,6 +75,7 @@ packet* 		createPacket(char *data, double time_to_transmit_packet);
 void 			appendPacket(packet **head, packet *new_packet);
 void			printStatistics(cmd *command);
 void 			printHeader(cmd *command, u_int16_t pid);
+void 			print_result(struct print_infos data, cmd *command);
 
 
 #endif

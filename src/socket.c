@@ -103,22 +103,31 @@ int getnameinfo_recv(int argument, struct sockaddr_storage recv_address, socklen
 
 void parseRawPacket(char *buffer, cmd *command, int size_recv)
 {
-    // Extract IP_HEADER
+    struct print_infos  data;
+
+    // Extract IP_HEADER and infos
     struct iphdr    *ip_header = (struct iphdr *)buffer;
     int             ip_header_lenght = ip_header->ihl * 4;
-    int             ip_header_ttl = ip_header->ttl;
-    int             bytes_recv = size_recv - ip_header_lenght;
+
+    data.ip_header = ip_header;
+    data.bytes_recv = size_recv - ip_header_lenght;
+    data.ttl = ip_header->ttl;
+
     // Recuperer Source Address dans IP_HEADER
     char            ip_str[INET_ADDRSTRLEN];
     struct in_addr  src_ip;
-
+    
     src_ip.s_addr = ip_header->saddr;
     inet_ntop(AF_INET, &src_ip, ip_str, sizeof(ip_str));
 
+    strncpy(data.ip_str, ip_str, INET_ADDRSTRLEN);
+
     // Extract ICMP_HEADER
     struct  icmphdr *icmp_header = (struct icmphdr *)(buffer + ip_header_lenght);
-    int             sequence_number;
-    sequence_number = ntohs(icmp_header->un.echo.sequence);
+
+    data.sequence_number = ntohs(icmp_header->un.echo.sequence);
+    data.icmp_header = icmp_header;
+    data.icmp_type = icmp_header->type;
 
     // Calculer temps de ping
     double    end_time = getTimeInMs();
@@ -127,43 +136,65 @@ void parseRawPacket(char *buffer, cmd *command, int size_recv)
         perror("gettime");
         freeAndExit(command, EXIT_FAILURE);
     }
-    double    time = end_time - command->start_time;
+    data.time = end_time - command->start_time;
 
-
-    // Sauvegarder le packet
-    packet  *new_packet = createPacket(buffer, time);
+    // Save new_packet dans la list
+    packet  *new_packet = createPacket(buffer, data.time);
     appendPacket(&command->packets, new_packet);
-    if (icmp_header->type == ICMP_TIME_EXCEEDED && command->verbose == true)
+
+    // Resolution DNS si hostname existant
+    struct sockaddr_in  addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr = src_ip;
+
+    int ret = getnameinfo(
+        (struct sockaddr *)&addr,
+        sizeof(addr),
+        data.hostname, sizeof(data.hostname),
+        NULL, 0, NI_NAMEREQD
+    );
+    if (ret != 0)
     {
-        printf("COUCOU");
+        perror("getnameinfo");
+        freeAndExit(command, EXIT_FAILURE);
     }
-    if (command->print_hostname == false)
-    {
-        // Recherche DNS Inverse
-        struct sockaddr_in  addr;
-        char                hostname[NI_MAXHOST];
+
+    print_result(data, command);
+    // if (icmp_header->type == ICMP_TIME_EXCEEDED && command->verbose == true)
+    // {
+    //     printf("COUCOU");
+    // }
+    // if (command->print_hostname == false)
+    // {
+    //     // Recherche DNS Inverse
+    //     struct sockaddr_in  addr;
+    //     char                hostname[NI_MAXHOST];
     
-        memset(&addr, 0, sizeof(addr));
-        addr.sin_family = AF_INET;
-        addr.sin_addr = src_ip;
+    //     memset(&addr, 0, sizeof(addr));
+    //     addr.sin_family = AF_INET;
+    //     addr.sin_addr = src_ip;
     
-        int ret = getnameinfo(
-            (struct sockaddr *)&addr,
-            sizeof(addr),
-            hostname, sizeof(hostname),
-            NULL, 0, NI_NAMEREQD
-        );
-        if (ret != 0)
-        {
-            perror("getnameinfo");
-            freeAndExit(command, EXIT_FAILURE);
-        }
-        printf("%d bytes from %s (%s): icmp_seq=%d ttl=%d time=%.1f ms\n", bytes_recv, hostname, ip_str, sequence_number, ip_header_ttl, time);
-    }
-    else
-    {
-        printf("%d bytes from %s : icmp_seq=%d ttl=%d time=%.1f ms\n", bytes_recv, ip_str, sequence_number, ip_header_ttl, time);
-    }
+    //     int ret = getnameinfo(
+    //         (struct sockaddr *)&addr,
+    //         sizeof(addr),
+    //         hostname, sizeof(hostname),
+    //         NULL, 0, NI_NAMEREQD
+    //     );
+    //     if (ret != 0)
+    //     {
+    //         perror("getnameinfo");
+    //         freeAndExit(command, EXIT_FAILURE);
+    //     }
+    //     printf("%d bytes from %s (%s):",bytes_recv, hostname, ip_str);
+
+    //     printf("%d bytes from %s (%s): icmp_seq=%d ttl=%d time=%.1f ms\n", bytes_recv, hostname, ip_str, sequence_number, ip_header_ttl, time);
+    // }
+    // else
+    // {
+    //     printf("%d bytes from %s (%s):",bytes_recv, ip_str, ip_str);
+    //     printf("%d bytes from %s : icmp_seq=%d ttl=%d time=%.1f ms\n", bytes_recv, ip_str, sequence_number, ip_header_ttl, time);
+    // }
 
 }
 

@@ -11,6 +11,7 @@ SRCS			= \
 				utils.c \
 				signal.c \
 				packet-statistics.c \
+				print_result.c \
 				
 SRC				= $(addprefix src/, $(SRCS))
 OBJS			= $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)

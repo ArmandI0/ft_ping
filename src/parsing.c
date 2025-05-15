@@ -35,8 +35,12 @@ void addFlag(char *flag, cmd *command)
         else if (flag[i] == '?')
         {
             command->help = true;
-            printf("%s", USAGE);
-            freeAndExit(command, EXIT_FAILURE);
+            printf("%s\n", USAGE);
+            printf("Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
+            printf("-?                      give this help list\n");
+            printf("--ttl=N                 specify N as time-to-live\n");
+            printf("-v                      verbose output\n");
+            freeAndExit(command, EXIT_SUCCESS);
         }
         else
         {
@@ -82,10 +86,7 @@ void	addAddr(char *addr, cmd *command)
 	command->raw_adress = addr;
 }
 
-/*
-	This 
 
-*/
 bool	splitArgs(char **av, cmd* command)
 {
 	for (size_t i = 1; av[i] != NULL; i++)
@@ -96,7 +97,7 @@ bool	splitArgs(char **av, cmd* command)
 			addAddr(av[i], command);
 		else
 		{
-			fprintf(stderr, "Only one destination are required"); // voir comment gerer ce cas (possible de mettre de site a ping ??)
+			fprintf(stderr, "Only one destination are required\n"); // voir comment gerer ce cas (possible de mettre de site a ping ??)
 			return EXIT_FAILURE;
 		}
 	}

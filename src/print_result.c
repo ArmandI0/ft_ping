@@ -1,6 +1,6 @@
 #include "../ft_ping.h"
 
-void print_ip_header_dump(struct iphdr *ip_header)
+void printIpHeaderDump(struct iphdr *ip_header)
 {
     unsigned char *bytes = (unsigned char *)ip_header;
 
@@ -35,17 +35,23 @@ void print_ip_header_dump(struct iphdr *ip_header)
     printf("%s\n", inet_ntoa(dst));
 }
 
-void print_icmp_details(struct icmphdr *icmp_header)
+void printIcmpHeaderDetails(struct icmphdr *icmp_header, struct iphdr *ip_header)
 {
+    int icmp_size = ntohs(ip_header->tot_len) - (ip_header->ihl * 4);
+
+    if (icmp_header->type != ICMP_ECHOREPLY) {
+        icmp_size -= sizeof(struct iphdr); // Soustraire l'en-tête IP encapsulé
+    }
     printf("ICMP: type %d, code %d, size %d, id 0x%04x, seq 0x%04x\n",
            icmp_header->type,
            icmp_header->code,
-           ntohs(icmp_header->un.echo.sequence + 4), // taille brute avec header IP
+           icmp_size, // taille brute avec header IP
            ntohs(icmp_header->un.echo.id),
            ntohs(icmp_header->un.echo.sequence));
+    printf("CHECKSUM = %d \n", icmp_header->checksum);
 }
 
-void print_end(struct print_infos data)
+void printEnd(struct print_infos data)
 {
     if (data.icmp_type == ICMP_TIME_EXCEEDED)
         printf(" Time to live exceeded\n");
@@ -57,7 +63,7 @@ void print_end(struct print_infos data)
     );
 }
 
-void print_start(struct print_infos data)
+void printStart(struct print_infos data)
 {
     printf("%d bytes from %s (%s):",
         data.bytes_recv,
@@ -69,11 +75,11 @@ void print_start(struct print_infos data)
 void print_result(struct print_infos data, cmd *command)
 {
     (void)command;
-    print_start(data);
-    print_end(data);
+    printStart(data);
+    printEnd(data);
 
     if (command->verbose && data.icmp_type != ICMP_ECHOREPLY) {
-        print_ip_header_dump(data.ip_header);
-        print_icmp_details(data.icmp_header);
+        printIpHeaderDump(data.ip_header);
+        printIcmpHeaderDetails(data.icmp_header, data.ip_header);
     }
 }

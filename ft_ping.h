@@ -13,7 +13,6 @@
 # include <netinet/in.h>
 # include <netinet/ip_icmp.h>
 # include <sys/time.h>
-# include <ctype.h>
 # include <signal.h>
 # include <fcntl.h>
 # include <errno.h>
@@ -38,10 +37,10 @@ typedef	struct packet_received
 typedef struct command
 {
 	bool			verbose;	// -v
-	bool			help;	// -?
-	int				ttl;
-	char			*packet;
-	int				socket;
+	bool			help;		// -?
+	int				ttl;		// --ttl
+	char			*packet;	// stock le packet envoye
+	int				socket;		// fd de la raw socket
 	int				nb_of_transmitted_packets;
 	int				nb_of_received_packets;
 	struct addrinfo	*addr;
@@ -65,7 +64,6 @@ struct print_infos
 
 cmd*			initCommandStruct(void);
 void 			freeAndExit(cmd *command, int exit_code);
-void			printStructCmd(cmd *command);
 cmd*			parseEntry(char **av);
 void    		createAndSendPacket(cmd *command);
 char*			convertIpToString(struct addrinfo *addr);

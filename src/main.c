@@ -10,7 +10,8 @@ int main(int ac, char **av)
         exit(EXIT_FAILURE);
     }
     cmd* command = parseEntry(av);
-    setSignalAction();
+
+    setSignalAction(); // Pour gerer les signaux dans les differrentes boucles
 
     while(g_signal_received)
     {

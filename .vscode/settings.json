@@ -4,7 +4,8 @@
         "stdio.h": "c",
         "stdint.h": "c",
         "features.h": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "in.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

@@ -7,7 +7,7 @@ void freePacketList(packet *head)
     {
         temp = head;
         head = head->next;
-        free(temp);  // Libérer chaque packet de la liste
+        free(temp);
     }
 }
 

@@ -48,7 +48,6 @@ void printIcmpHeaderDetails(struct icmphdr *icmp_header, struct iphdr *ip_header
            icmp_size, // taille brute avec header IP
            ntohs(icmp_header->un.echo.id),
            ntohs(icmp_header->un.echo.sequence));
-    printf("CHECKSUM = %d \n", icmp_header->checksum);
 }
 
 void printEnd(struct print_infos data)
@@ -65,9 +64,8 @@ void printEnd(struct print_infos data)
 
 void printStart(struct print_infos data)
 {
-    printf("%d bytes from %s (%s):",
+    printf("%d bytes from %s:",
         data.bytes_recv,
-        data.hostname,
         data.ip_str
     );
 }

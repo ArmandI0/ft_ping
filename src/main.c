@@ -6,7 +6,7 @@ int main(int ac, char **av)
 {
     if (ac < 2)
     {
-        fprintf(stderr, "Error : %s \n", USAGE);
+        fprintf(stderr, "Error : %s ", USAGE);
         exit(EXIT_FAILURE);
     }
     cmd* command = parseEntry(av);

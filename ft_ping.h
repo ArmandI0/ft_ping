@@ -52,7 +52,6 @@ typedef struct command
 struct print_infos
 {
 	int             bytes_recv;
-	char            hostname[NI_MAXHOST];
 	char            ip_str[INET_ADDRSTRLEN];
 	int             sequence_number;
 	int				icmp_type;

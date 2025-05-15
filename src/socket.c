@@ -136,7 +136,7 @@ void parseRawPacket(char *buffer, cmd *command, int size_recv)
     inet_ntop(AF_INET, &src_ip, ip_str, sizeof(ip_str));
 
     strncpy(data.ip_str, ip_str, INET_ADDRSTRLEN);
-    strncpy(data.hostname, ip_str, sizeof(data.hostname));
+
     // Extract ICMP_HEADER
     struct  icmphdr *icmp_header = (struct icmphdr *)(buffer + ip_header_lenght);
 

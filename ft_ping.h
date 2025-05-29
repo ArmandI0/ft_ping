@@ -73,6 +73,7 @@ void 			appendPacket(packet **head, packet *new_packet);
 void			printStatistics(cmd *command);
 void 			printHeader(cmd *command, u_int16_t pid);
 void 			print_result(struct print_infos data, cmd *command);
+void    		createSocket(cmd *command);
 
 
 #endif

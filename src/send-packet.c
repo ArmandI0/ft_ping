@@ -56,40 +56,6 @@ char* preparePacket(cmd *command)
 
 /*
     Input: cmd *command
-    Description: Crée un socket brut configuré pour le protocole ICMP.
-    Plus configurer la socket pour ne pas bloquer a recvmfrom
-*/
-void    createSocket(cmd *command)
-{
-    int sockfd = -1;
-    
-    sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);   // SOCK_RAW -> Socket brute pour tous les protocoles + filtre ICMP
-    if (sockfd < 0)
-    {
-        perror("socket");
-        freeAndExit(command, EXIT_FAILURE);
-    }
-
-    // Pour que les fonctions comme recvfrom soit non bloquante
-    int flags = fcntl(sockfd, F_GETFL, 0);
-
-    if (flags == -1 || fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
-        perror("fcntl - non-blocking");
-        freeAndExit(command, EXIT_FAILURE);
-    }
-
-    // Modifier le time to leave
-    int ttl = command->ttl;
-
-    if (setsockopt(sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
-        perror("setsockopt");
-    }
-    command->socket = sockfd;
-}
-
-
-/*
-    Input: cmd *command
 
     Description: Envoie le paquet ICMP
 */
@@ -239,7 +205,6 @@ void    createAndSendPacket(cmd *command)
         perror("malloc");
         freeAndExit(command, EXIT_FAILURE);
     }
-    createSocket(command);
     sendPacket(command);
     recvPacket(command);
 }

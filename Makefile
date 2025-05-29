@@ -6,7 +6,7 @@ OBJ_DIR			= obj
 SRCS			= \
 				main.c \
 				parsing.c \
-				socket.c \
+				send-packet.c \
 				struct-management.c \
 				utils.c \
 				signal.c \

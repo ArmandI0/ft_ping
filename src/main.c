@@ -12,7 +12,7 @@ int main(int ac, char **av)
     cmd* command = parseEntry(av);
 
     setSignalAction(); // Pour gerer les signaux dans les differrentes boucles
-
+    createSocket(command);
     while(g_signal_received)
     {
         createAndSendPacket(command);

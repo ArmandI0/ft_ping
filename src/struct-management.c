@@ -70,6 +70,8 @@ void freeAndExit(cmd *command, int exit_code)
             free(command->packet);
         if (command->packets != NULL)
             freePacketList(command->packets);
+        if (command->socket != -1)
+            close(command->socket);
         free(command);
     }
     exit(exit_code);

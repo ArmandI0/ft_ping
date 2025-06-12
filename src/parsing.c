@@ -44,7 +44,7 @@ void addFlag(char *flag, cmd *command)
         else
         {
             fprintf(stderr, "ft_ping: unrecognized option '%s'\n", flag);
-            fprintf(stderr, "Try 'ft_ping --help' for more information.\n");
+            fprintf(stderr, "Try 'ft_ping -?' for more information.\n");
             freeAndExit(command, EXIT_FAILURE);
         }
     }
@@ -100,6 +100,12 @@ bool	splitArgs(char **av, cmd* command)
 			fprintf(stderr, "Only one destination are required\n"); // voir comment gerer ce cas (possible de mettre de site a ping ??)
 			return EXIT_FAILURE;
 		}
+	}
+    if (command->addr == NULL)
+	{
+		printf("ft_ping: missing host operand\n");
+        printf("Try 'ft_ping --help'\n");
+		freeAndExit(command, EXIT_FAILURE);
 	}
 	return EXIT_SUCCESS;
 }

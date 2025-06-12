@@ -24,8 +24,7 @@ void addFlag(char *flag, cmd *command)
         }
         return;
     }
-
-	// - options
+    // - options
     for (size_t i = 1; flag[i] != '\0'; i++)
     {
         if (flag[i] == 'v')
@@ -44,7 +43,8 @@ void addFlag(char *flag, cmd *command)
         }
         else
         {
-            fprintf(stderr, "ft_ping: invalid option -- '%c'\n", flag[i]);
+            fprintf(stderr, "ft_ping: unrecognized option '%s'\n", flag);
+            fprintf(stderr, "Try 'ft_ping --help' for more information.\n");
             freeAndExit(command, EXIT_FAILURE);
         }
     }
@@ -79,7 +79,7 @@ void	addAddr(char *addr, cmd *command)
     hints.ai_protocol = IPPROTO_UDP;
     int status = getaddrinfo(addr, NULL, &hints, &res);
     if (status != 0) {
-        fprintf(stderr, "ft_ping: cannot resolve %s\n", addr);
+        fprintf(stderr, "ft_ping: unknown host\n");
 		freeAndExit(command, EXIT_FAILURE);
     }
 	command->addr = res;
@@ -91,7 +91,7 @@ bool	splitArgs(char **av, cmd* command)
 {
 	for (size_t i = 1; av[i] != NULL; i++)
 	{
-		if (av[i][0] == '-')
+		if (av[i][0] == '-' && av[i][1] != '\0')
 			addFlag(av[i], command);
 		else if (command->addr == NULL)
 			addAddr(av[i], command);

@@ -6,7 +6,8 @@ int main(int ac, char **av)
 {
     if (ac < 2)
     {
-        fprintf(stderr, "Error : %s ", USAGE);
+        fprintf(stderr, "ft_ping: missing host operand\n");
+        fprintf(stderr, "Try 'ft_ping --help' for more information.\n");
         exit(EXIT_FAILURE);
     }
     cmd* command = parseEntry(av);

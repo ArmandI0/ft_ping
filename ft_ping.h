@@ -51,14 +51,16 @@ typedef struct command
 
 struct print_infos
 {
-	int             bytes_recv;
-	char            ip_str[INET_ADDRSTRLEN];
-	int             sequence_number;
-	int				icmp_type;
-	int             ttl;
-	double          time;
-	struct iphdr    *ip_header;
-	struct icmphdr  *icmp_header;
+    int             bytes_recv;
+    char            ip_str[INET_ADDRSTRLEN];
+    int             sequence_number;
+    int             icmp_type;
+    int             ttl;
+    double          time;
+    struct iphdr    *ip_header;
+    struct icmphdr  *icmp_header;
+    struct iphdr    *encapsulated_ip_header;
+    struct icmphdr  *encapsulated_icmp_header;
 };
 
 cmd*			initCommandStruct(void);

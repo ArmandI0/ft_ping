@@ -5,17 +5,25 @@ void printIpHeaderDump(struct iphdr *ip_header)
     unsigned char *bytes = (unsigned char *)ip_header;
 
     printf("IP Hdr Dump:\n");
-    for (size_t i = 0; i < sizeof(struct iphdr); ++i) {
-        printf(" %02x", bytes[i]);
-        if ((i + 1) % 10 == 0)
-            printf("\n");
+    printf(" ");
+    for (size_t i = 0; i < sizeof(struct iphdr); ++i)
+    {
+        printf("%02x", bytes[i]);
+        if (i < sizeof(struct iphdr) - 1)
+        {
+            printf(" ");
+        }
+        if ((i + 1) % 10 == 0) {
+            printf("\n ");
+        }
     }
     if (sizeof(struct iphdr) % 10 != 0)
+    {
         printf("\n");
+    }
 
     printf("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src\tDst\tData\n");
-
-    printf(" %1x  %1x  %02x %04x %04x  %1x %04x  %02x  %02x %04x  ",
+    printf(" %1x  %1x  %02x %04x %04x   %1x %04x  %02x  %02x %04x  ",
            ip_header->version,
            ip_header->ihl,
            ip_header->tos,
@@ -39,13 +47,14 @@ void printIcmpHeaderDetails(struct icmphdr *icmp_header, struct iphdr *ip_header
 {
     int icmp_size = ntohs(ip_header->tot_len) - (ip_header->ihl * 4);
 
-    if (icmp_header->type != ICMP_ECHOREPLY) {
-        icmp_size -= sizeof(struct iphdr); // Soustraire l'en-tête IP encapsulé
+    if (icmp_header->type != ICMP_ECHOREPLY)
+    {
+        icmp_size -= sizeof(struct iphdr);
     }
     printf("ICMP: type %d, code %d, size %d, id 0x%04x, seq 0x%04x\n",
            icmp_header->type,
            icmp_header->code,
-           icmp_size, // taille brute avec header IP
+           icmp_size,
            ntohs(icmp_header->un.echo.id),
            ntohs(icmp_header->un.echo.sequence));
 }
@@ -72,12 +81,12 @@ void printStart(struct print_infos data)
 
 void print_result(struct print_infos data, cmd *command)
 {
-    (void)command;
     printStart(data);
     printEnd(data);
 
-    if (command->verbose && data.icmp_type != ICMP_ECHOREPLY) {
-        printIpHeaderDump(data.ip_header);
-        printIcmpHeaderDetails(data.icmp_header, data.ip_header);
+    if (command->verbose && data.icmp_type != ICMP_ECHOREPLY)
+    {
+        printIpHeaderDump(data.encapsulated_ip_header);
+        printIcmpHeaderDetails(data.encapsulated_icmp_header, data.encapsulated_ip_header);
     }
 }

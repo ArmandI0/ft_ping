@@ -86,7 +86,6 @@ void parseRawPacket(char *buffer, cmd *command, int size_recv)
 {
     struct print_infos  data;
 
-    // Extract IP_HEADER and infos
     struct iphdr    *ip_header = (struct iphdr *)buffer;
     int             ip_header_lenght = ip_header->ihl * 4;
 
@@ -107,26 +106,28 @@ void parseRawPacket(char *buffer, cmd *command, int size_recv)
     struct  icmphdr *icmp_header = (struct icmphdr *)(buffer + ip_header_lenght);
 
     // En cas d'erreur le packet ICMP est encapsule dans un autre packet ICMP
-    if (icmp_header->type != ICMP_ECHOREPLY) {
-        // Access the encapsulated IP header
+    if (icmp_header->type != ICMP_ECHOREPLY)
+    {
         struct iphdr *encapsulated_ip_header = (struct iphdr *)(buffer + ip_header_lenght + sizeof(struct icmphdr));
         int encapsulated_ip_header_length = encapsulated_ip_header->ihl * 4;
 
-        // Access the encapsulated ICMP header
         struct icmphdr *encapsulated_icmp_header = (struct icmphdr *)((char *)encapsulated_ip_header + encapsulated_ip_header_length);
 
-    data.sequence_number = ntohs(encapsulated_icmp_header->un.echo.sequence);
-    data.icmp_header = encapsulated_icmp_header;
-    data.icmp_type = encapsulated_icmp_header->type;
+        data.sequence_number = ntohs(encapsulated_icmp_header->un.echo.sequence);
+        data.icmp_header = icmp_header;
+        data.encapsulated_ip_header = encapsulated_ip_header;
+        data.encapsulated_icmp_header = encapsulated_icmp_header;
+        data.icmp_type = icmp_header->type;
     } 
     else
     {
         data.sequence_number = ntohs(icmp_header->un.echo.sequence);
         data.icmp_header = icmp_header;
+        data.encapsulated_ip_header = NULL;
+        data.encapsulated_icmp_header = NULL;
         data.icmp_type = icmp_header->type;
     }
 
-    // Calculer temps de ping
     double    end_time = getTimeInMs();
     if (end_time == -1)
     {
@@ -135,7 +136,6 @@ void parseRawPacket(char *buffer, cmd *command, int size_recv)
     }
     data.time = end_time - command->start_time;
 
-    // Save new_packet dans la list
     packet  *new_packet = createPacket(buffer, data.time);
     appendPacket(&command->packets, new_packet);
     print_result(data, command);

@@ -11,21 +11,6 @@ void freePacketList(packet *head)
     }
 }
 
-packet* createPacket(char *data, double time_to_transmit_packet)
-{
-    packet *new_packet = (packet *)malloc(sizeof(packet));
-    if (new_packet == NULL)
-    {
-        perror("Failed to allocate memory for packet");
-        exit(1);
-    }
-    new_packet->data = data;
-    new_packet->time_to_tramsmit_packet = time_to_transmit_packet;
-    new_packet->next = NULL;
-    new_packet->prev = NULL;
-    return new_packet;
-}
-
 void appendPacket(packet **head, packet *new_packet)
 {
     if (*head == NULL)
@@ -76,3 +61,17 @@ void freeAndExit(cmd *command, int exit_code)
     }
     exit(exit_code);
 }
+
+packet* createPacket(char *data, double time_to_transmit_packet)
+{
+    packet *new_packet = (packet *)malloc(sizeof(packet));
+    if (new_packet != NULL)
+    {
+		new_packet->data = data;
+		new_packet->time_to_tramsmit_packet = time_to_transmit_packet;
+		new_packet->next = NULL;
+		new_packet->prev = NULL;
+    }
+    return new_packet;
+}
+

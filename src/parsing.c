@@ -97,7 +97,7 @@ bool	splitArgs(char **av, cmd* command)
 			addAddr(av[i], command);
 		else
 		{
-			fprintf(stderr, "Only one destination are required\n"); // voir comment gerer ce cas (possible de mettre de site a ping ??)
+			fprintf(stderr, "Only one destination are required\n");
 			return EXIT_FAILURE;
 		}
 	}

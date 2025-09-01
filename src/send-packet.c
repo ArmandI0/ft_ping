@@ -137,6 +137,11 @@ void parseRawPacket(char *buffer, cmd *command, int size_recv)
     data.time = end_time - command->start_time;
 
     packet  *new_packet = createPacket(buffer, data.time);
+	if (new_packet == NULL)
+	{
+		perror("Malloc fail");
+		freeAndExit(command, EXIT_FAILURE);
+	}
     appendPacket(&command->packets, new_packet);
     print_result(data, command);
 }

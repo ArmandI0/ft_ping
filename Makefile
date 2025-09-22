@@ -34,7 +34,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 				$(CC) $(CFLAGS) -c -o $@ $<
 
 $(NAME): 		$(OBJS)
-				@$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+				@$(CC) $(CFLAGS) $(OBJS) -o $(NAME) -lm
 				
 clean:
 				@$(RMR) $(OBJ_DIR)
